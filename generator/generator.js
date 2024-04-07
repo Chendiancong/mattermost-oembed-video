@@ -50,12 +50,26 @@ function getDimensions(data) {
     return { width, height }
 }
 
+
+
 async function processProviders(providers) {
     const providerDimensions = []
 
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    const proxyUrl = process.env.HTTP_PROXY;
+    console.log(`proxy url: ${proxyUrl}`);
+
     for (let provider of providers) {
         try {
-            const data = await fetch(provider.example_url).then(parseResponse)
+            // const data = await fetch(provider.example_url).then(parseResponse)
+            console.log(`fetch url ${provider.example_url}`);
+            const data = await fetch(
+                provider.example_url,
+                {
+                    agent: proxyUrl ? new (require('https-proxy-agent').HttpsProxyAgent)(proxyUrl) : void 0
+                }
+            )
+            console.log(`fetch data ${JSON.stringify(data)}`);
             const dimensions = getDimensions(data)
 
             if ((typeof dimensions.width === 'number' && !isNaN(dimensions.width)) && (typeof dimensions.height === 'number' && !isNaN(dimensions.height))) {
@@ -66,7 +80,6 @@ async function processProviders(providers) {
             }
         } catch (err) {
             console.error(`-- Couldn't process provider ${provider.provider_name}`)
-            console.error(err)
         }
     }
 

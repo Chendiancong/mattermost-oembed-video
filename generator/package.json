@@ -5,7 +5,8 @@
   },
   "dependencies": {
     "fast-xml-parser": "^3.12.20",
-    "node-fetch": "^2.6.0",
+    "https-proxy-agent": "^7.0.4",
+    "node-fetch": "^2.7.0",
     "yaml": "^1.6.0"
   }
 }

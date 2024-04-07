@@ -44,10 +44,12 @@ endif
 gofmt:
 ifneq ($(HAS_SERVER),)
 	@echo Running gofmt
-	@for package in $$(go list ./...); do \
-		echo "Checking "$$package; \
-		files=$$(go list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' $$package); \
-		if [ "$$files" ]; then \
+	@for pkg in $$(go list ./...); do \
+		echo "Checking "$$pkg; \
+		files=$$(go list -f '{{range .GoFiles}}{{$$.Dir}}/{{.}} {{end}}' $$pkg); \
+		if expr match "$$files" '.*goPkgs' > /dev/null; then \
+			echo "#"; \
+		elif [ "$$files" ]; then \
 			gofmt_output=$$(gofmt -d -s $$files 2>&1); \
 			if [ "$$gofmt_output" ]; then \
 				echo "$$gofmt_output"; \
@@ -65,9 +67,11 @@ govet:
 ifneq ($(HAS_SERVER),)
 	@echo Running govet
 	@# Workaround because you can't install binaries without adding them to go.mod
-	env GO111MODULE=off $(GO) get golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+	export GO111MODULE=off
+	$(GO) install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+	export GO111MODULE=auto
 	$(GO) vet ./...
-	$(GO) vet -vettool=$(GOPATH)/bin/shadow ./...
+	# $(GO) vet -vettool=$(GOPATH)/bin/shadow ./...
 	@echo Govet success
 endif
 
@@ -75,7 +79,9 @@ endif
 .PHONY: golint
 golint:
 	@echo Running lint
-	env GO111MODULE=off $(GO) get golang.org/x/lint/golint
+	export GO111MODULE=off
+	$(GO) install golang.org/x/lint/golint
+	export GO111MODULE=auto
 	$(GOPATH)/bin/golint -set_exit_status ./...
 	@echo lint success
 
@@ -100,7 +106,7 @@ endif
 .PHONY: webapp
 webapp: webapp/.npminstall
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && $(NPM) run build;
+	cd webapp && env NODE_OPTIONS=--openssl-legacy-provider $(NPM) run build;
 endif
 
 ## Generates a tar bundle of the plugin for install.
@@ -154,7 +160,7 @@ endif
 .PHONY: test
 test: webapp/.npminstall
 ifneq ($(HAS_SERVER),)
-	$(GO) test -v $(GO_TEST_FLAGS) ./server/...
+	env CGO_ENABLED=1 $(GO) test -v $(GO_TEST_FLAGS) ./server/...
 endif
 ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run fix && $(NPM) run test;

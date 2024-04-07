@@ -6,6 +6,6 @@ var manifest = struct {
 	ID      string
 	Version string
 }{
-	ID:      "com.mattermost.without-proxy",
+	ID:      "com.mattermost.videoPreview",
 	Version: "1.0.0",
 }
