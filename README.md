@@ -59,3 +59,19 @@ make
 ```
 Two file will be created inside dist folder. 
 Copy the tar.gz file and upload in the mattermost plugin section.
+
+# window10 make指引
+1.安装cygwin https://cygwin.com/setup-x86_64.exe   
+2.安装TDM-GCC https://github.com/jmeubank/tdm-gcc/releases/download/v10.3.0-tdm64-2/tdm64-gcc-10.3.0-2.exe   
+3.安装go   
+4.安装node   
+5.打开cygwin，并进入工程目录，执行
+```shell
+sh makeit.sh
+```
+- makeit脚本中http_proxy以及https_proxy为本地代理的地址，如果有些文件访问超时下载不了，请设置代理，如果不需要就注释掉（设为空或前面加#）
+
+# window10 generate指引
+1.进入generator目录
+2.执行批处理generateit.bat
+- benerateit脚本中HTTP_PROXY以及HTTS_PROXY为本地代理地址，如果有超时访问不了的url，请设置代理，如果不需要就注释掉（设为空或前面加REM）
